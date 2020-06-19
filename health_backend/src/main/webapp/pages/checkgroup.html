@@ -282,28 +282,124 @@
             methods: {
                 //编辑
                 handleEdit() {
+                    //发送ajax请求，将修改后的表单数据提交到后台进行处理
+                    axios.post("/checkgroup/edit.do?checkitemIds="+this.checkitemIds,this.formData).then((res)=>{
+                        //关闭编辑窗口
+                        this.dialogFormVisible4Edit=false;
+                        //判断是否成功
+                        if(res.data.flag){
+                            this.$message({
+                                type:'success',
+                                message:res.data.message
+                            })
+                        }else {
+                            this.$message.error(res.data.message);
+                        }
+                    }).finally(()=>{
+                        this.findPage();
+                    })
                 },
                 //添加
                 handleAdd () {
+                    // alert(this.checkitemIds);
+                    // alert(this.formData.code);
+                    // console.log(this.formData)
+                    axios.post("/checkgroup/add.do?checkitemIds="+this.checkitemIds,this.formData).then((res)=>{
+                        //关闭弹出的窗口
+                        this.dialogFormVisible=false;
+                        //判断
+                        if (res.data.flag){
+                            //操作成功
+                            this.$message({
+                                type:'success',
+                                message:res.data.message
+                            })
+                        }else {
+                            //操作失败
+                            this.$message.error(res.data.message);
+                        }
+                    }).finally(()=>{
+                        //重新进行分页查询
+                        this.findPage();
+                    })
                 },
                 //分页查询
                 findPage() {
+                    //封装分页数据
+                    var param ={
+                        currentPage: this.pagination.currentPage,
+                        pageSize: this.pagination.pageSize,
+                        queryString: this.pagination.queryString
+                    }
+                    //发送aajax请求，提交分页相关数据
+                    axios.post("/checkgroup/findPage.do",param).then((res)=>{
+                        //为VUE对象对模型数据赋值，基于双向绑定到页面
+                        //当前页结果
+                        this.dataList=res.data.rows,
+                        //总页数
+                        this.pagination.total=res.data.total;
+                    })
                 },
                 // 重置表单
                 resetForm() {
-                    this.formData=[];
+                    this.formData={};
                 },
                 // 弹出添加窗口
                 handleCreate() {
                     this.resetForm();
                     this.dialogFormVisible=true;
+
+                    this.activeNames='first';
+                    this.checkitemIds=[];
+                    //发送ajax请求，查询所有的检查项信息，转为json，赋值给tableData
+                    axios.get("/checkitem/findAll.do").then((res)=>{
+                        if (res.data.flag){
+                            //查询检查组成功
+                            this.tableData=res.data.data;
+                        }else {
+                            //查询检查组失败
+                            this.$message.error(res.data.message);
+                        }
+                    })
                 },
                 // 弹出编辑窗口
                 handleUpdate(row) {
-
+                    //编辑窗口的弹出
+                    this.dialogFormVisible4Edit=true;
+                    this.activeName="first";
+                    //提交当前id，查询数据用于回显
+                    axios.get("/checkgroup/findById.do?id="+row.id).then((res)=>{
+                        if (res.data.flag){
+                            //查询到数据
+                            this.formData=res.data.data;
+                        }else {
+                            //未查询到数据
+                            this.$message.error(res.data.message);
+                        }
+                    })
+                    //发送ajax请求获取所有的检查项数据
+                    axios.get("/checkitem/findAll.do").then((res)=>{
+                        if (res.data.flag){
+                            //查询检查组成功
+                            this.tableData=res.data.data;
+                            //需在全部显示后使用，发送ajax请求，获取已选标示
+                            axios.get("/checkgroup/findCheckItemIdsByCheckGroupId.do?id="+row.id).then((res)=>{
+                                if (res.data.flag){
+                                    this.checkitemIds=res.data.data;
+                                }else {
+                                    this.$message.error(res.data.message);
+                                }
+                            })
+                        }else {
+                            //查询检查组失败
+                            this.$message.error(res.data.message);
+                        }
+                    })
                 },
                 //切换页码
                 handleCurrentChange(currentPage) {
+                    this.pagination.currentPage=currentPage;
+                    this.findPage();
                 },
                 // 删除
                 handleDelete(row) {

@@ -3,6 +3,7 @@ com/itheima/pojo/Member.class
 com/itheima/pojo/Setmeal.class
 com/itheima/pojo/CheckGroup.class
 com/itheima/pojo/Menu.class
+com/itheima/utils/QiniuUtils.class
 com/itheima/entity/QueryPageBean.class
 com/itheima/pojo/CheckItem.class
 com/itheima/pojo/Permission.class

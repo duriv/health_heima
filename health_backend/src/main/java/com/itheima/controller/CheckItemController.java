@@ -1,7 +1,7 @@
 package com.itheima.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.itheima.CheckItemService;
+import com.itheima.service.CheckItemService;
 import com.itheima.constant.MessageConstant;
 import com.itheima.entity.PageResult;
 import com.itheima.entity.QueryPageBean;
@@ -10,6 +10,8 @@ import com.itheima.pojo.CheckItem;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/checkitem")
@@ -65,6 +67,17 @@ public class CheckItemController {
             CheckItem checkItem = checkItemService.findById(id);
             return new Result(true,MessageConstant.QUERY_CHECKITEM_SUCCESS,checkItem);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false, MessageConstant.QUERY_CHECKITEM_FAIL);
+        }
+    }
+    //查询所有
+    @RequestMapping("/findAll")
+    public Result findAll(){
+        try {
+            List<CheckItem> list = checkItemService.findAll();
+            return new Result(true,MessageConstant.QUERY_CHECKITEM_SUCCESS,list);
         } catch (Exception e) {
             e.printStackTrace();
             return new Result(false, MessageConstant.QUERY_CHECKITEM_FAIL);
